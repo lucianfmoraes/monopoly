@@ -9,6 +9,7 @@ class Propriedade:
     def getId(self):
         return self.id
         # teste
+        # teste
 
     def setId(self, id):
         self.id = id
