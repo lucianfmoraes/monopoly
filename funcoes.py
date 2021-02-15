@@ -1,8 +1,10 @@
 import time
+import os
 import sys
 from constantes import *
 from propriedade import *
 from jogador import *
+from datetime import datetime
 
 
 def inicializacao():
@@ -53,13 +55,23 @@ def sorteio_ordem_jogadores(jogadores):
     return lista_sorteada
 
 
+def print_status(count, jogadores):
+    players = []
+    #print(' * RODADA ' + str(count) + ' *  \n')
+    # for b in jogadores:
+    #    if b.getAtivo():
+    #print('J ATIVOS: ' + b.getNome())
+    # print('\n')
+
+
 def comprar_ou_pagar_aluguel(jogador, propriedade):
     # PROPRIEDADE SEM DONO
     if (not propriedade.getProprietario()):
         decisao_compra(jogador, propriedade)
-        pass
+    # PROPRIEDADE DO PROPRIO JOGADOR
     elif (propriedade.getProprietario() == jogador):
         return
+    # PROPRIEDADE TEM DONO E NÃO É DO PROPRIO JOGADOR
     else:
         jogador.pagar_aluguel(propriedade)
 
@@ -79,18 +91,33 @@ def decisao_compra(jogador, propriedade):
         else:
             return
     else:
+        # BOOLEANO RANDOMICO
         if (bool(random.getrandbits(1))):
             jogador.comprar_propriedade(propriedade)
         else:
             return
 
 
+def define_vencedor(jogadores):
+    saldo_coin = 0
+    for j in jogadores:
+        if j.getAtivo() == True:
+            if j.getCoins() > saldo_coin:
+                saldo_coin = j.getCoins()
+                vencedor = j
+    print('@@@@ VENCEDOR : ' + vencedor.getNome() + '  @@@@')
+    return vencedor
+
+
 def turno(jogador, propriedades):
-    if (jogador.getAtivo() == False):
-        return
     jogador.andar_tabuleiro()
     # new
-    posicao_jogador = jogador.getPosicao()
+    #pIndex = jogador.getPosicao() - 1
+    #comprar_ou_pagar_aluguel(jogador, propriedades[pIndex])
+    # if (jogador.getAtivo() == False):
+    #    for p in propriedades:
+    #        if (p.getProprietario() == jogador):
+    #            jogador.perdeu_jogo()
     for p in propriedades:
-        if (p.getPosicao() == posicao_jogador):
+        if (p.getPosicao() == jogador.getPosicao()):
             comprar_ou_pagar_aluguel(jogador, p)

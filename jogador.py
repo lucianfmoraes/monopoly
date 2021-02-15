@@ -41,6 +41,9 @@ class Jogador:
     def setPropriedades(self, propriedade):
         self.propriedades.append(propriedade)
 
+    def resetPropriedades(self):
+        self.propriedades = []
+
     def getPosicao(self):
         return self.posicao
 
@@ -59,35 +62,38 @@ class Jogador:
     def setAtivo(self, ativo):
         self.ativo = ativo
 
-    # FUNCOES DO JOGADOR
+    ########################
+    ##                    ##
+    ## FUNCOES DO JOGADOR ##
+    ##                    ##
+    ########################
+
     def jogar_dado(self):
         return random.randint(1, 6)
 
-    def conferir_saldo(self):
+    def checar_saldo(self):
         if self.coins < 0:
-            self.ativo = False
+            self.perdeu_jogo()
 
     def andar_tabuleiro(self):
-        if self.ativo == False:
-            return None
         valor_dado = self.jogar_dado()
         nova_posicao = self.posicao + valor_dado
-        print(self.nome.upper() + ' SALDO = ' + str(self.getCoins()))
-        print('POSICAO ANTERIOR: ' + str(self.posicao))
-        print('VALOR DADO: ' + str(valor_dado))
+        # LOG_RODADA.insert(0)
+        #print(self.nome.upper() + ' SALDO = ' + str(self.getCoins()))
+        #print('POSICAO ANTERIOR: ' + str(self.posicao))
+        #print('VALOR DADO: ' + str(valor_dado))
         if nova_posicao > 20:
             self.posicao = nova_posicao - 20
             self.coins = self.coins + 100
         else:
             self.posicao = nova_posicao
-
-        print('POSICAO ATUAL: ' + str(self.posicao)+'\n')
+        #print('POSICAO ATUAL: ' + str(self.posicao))
         return nova_posicao
 
     def comprar_propriedade(self, propriedade):
         if not propriedade:
             return
-        # SE PROPRIEDADE ESTÁ SEM DONO E JOGADOR TEM COM SALDO
+        # SE PROPRIEDADE ESTÁ SEM DONO E JOGADOR TEM SALDO
         if (not propriedade.getProprietario() and self.getCoins() >= propriedade.getVenda()):
             # PAGA PELA COMRA | PROPRIEDADE É DO JOGADOR | JOGADOR TEM A PROPRIEDADE
             self.subtraiCoins(propriedade.getVenda())
@@ -95,8 +101,8 @@ class Jogador:
             propriedade.setProprietario(self)
             propriedade_nome = str(propriedade.getId())
             jogador_nome = self.getNome()
-            print('$ $ $ ' + jogador_nome + ' COMPROU PROPRIEDADE ' +
-                  propriedade_nome + ' $ $ $')
+            # print('$ $ $ ' + jogador_nome + ' COMPROU PROPRIEDADE ' +
+            #      propriedade_nome + ' $ $ $')
 
     def pagar_aluguel(self, propriedade):
         if (not propriedade or not propriedade.getProprietario()):
@@ -108,9 +114,14 @@ class Jogador:
             jogador_nome = self.getNome()
             propriedade_nome = str(propriedade.getId())
             proprietario_nome = propriedade.getProprietario().getNome()
-            print('! ! ! ' + jogador_nome + ' PAGOU ' + str(aluguel) + ' DE ALUGUEL PARA ' +
-                  proprietario_nome + ' PROPRIEDADE ' + propriedade_nome + ' ! ! !')
-            if self.getCoins() < 0:
-                self.setAtivo(False)
-                print('** ' + jogador_nome +
-                      ' PERDEU O JOGO | SALDO: ' + str(self.getCoins()) + ' **')
+            # print('! ! ! ' + jogador_nome + ' PAGOU ' + str(aluguel) + ' DE ALUGUEL PARA ' +
+            #      proprietario_nome + ' PROPRIEDADE ' + propriedade_nome + ' ! ! !')
+            self.checar_saldo()
+
+    def perdeu_jogo(self):
+        for p in self.getPropriedades():
+            p.setProprietario(None)
+        self.resetPropriedades()
+        self.setAtivo(False)
+        print('# # # ' + self.getNome() +
+              ' PERDEU O JOGO | SALDO: ' + str(self.getCoins()) + ' # # #')
